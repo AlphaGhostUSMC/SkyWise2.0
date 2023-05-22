@@ -6,6 +6,14 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const path = require('path');
 
+// Generate a secret key for JWT signing
+const secretKey = crypto.randomBytes(32).toString('hex');
+console.log(secretKey);
+
+const muser = process.env.MONGODB_USERNAME;
+const mpass = process.env.MONGODB_PASSWORD;
+const db = process.env.MONGODB_DATABASE;
+
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -30,7 +38,7 @@ app.get('/app.html', (req, res) => {
 });
 
 // MongoDB connection string
-const uri = 'mongodb+srv://AlphaDBAdmin2:Zoo05rF9PMR3UeGG@alphadbv1.9q93m.mongodb.net/SkyWise?retryWrites=true&w=majority';
+const uri = `mongodb+srv://${muser}:${mpass}@alphadbv1.9q93m.mongodb.net/${db}?retryWrites=true&w=majority`;
 
 // Route for handling the registration form submission
 app.post('/register', async (req, res) => {
@@ -111,7 +119,7 @@ app.post('/login', async (req, res) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
 
     // Login successful, send the token as a response
     res.status(200).json({ success: true, message: 'Login successful', token });
@@ -136,13 +144,14 @@ app.get('/protected', (req, res) => {
     return res.status(401).json({ success: false, message: 'Authorization token not provided' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+  jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
       return res.status(403).json({ success: false, message: 'Invalid token' });
     }
 
     const { username } = decoded;
 
+    console.log('Protected route accessed by:', username);
     // Perform any necessary actions for the protected route
     // ...
 
