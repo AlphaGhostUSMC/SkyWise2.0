@@ -117,7 +117,7 @@ function submitForm() {
           if (data.success) {
             showNotification('Registration successful. Please log in.');
           } else {
-            showNotification('Registration failed. Please try again.');
+            showNotification(data.message);
           }
         });
       }

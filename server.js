@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const { MongoClient } = require('mongodb');
-const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const app = express();
 const path = require('path');
 
@@ -57,7 +57,7 @@ app.post('/register', async (req, res) => {
     }
 
     // Hash the password before storing it
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
 
     // Insert the registration details into the collection
     await collection.insertOne({ username, email, password: hashedPassword });
@@ -70,6 +70,51 @@ app.post('/register', async (req, res) => {
     console.log('Error storing registration details:', error);
 
     res.status(500).json({ success: false, message: 'Registration failed' });
+  } finally {
+    // Close the MongoDB connection if the client is defined
+    if (client) {
+      client.close();
+      console.log('Disconnected from MongoDB');
+    }
+  }
+});
+
+// Route for handling the login request
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  let client;
+
+  try {
+    client = new MongoClient(uri);
+
+    await client.connect();
+    console.log('Connected to MongoDB');
+
+    const collection = client.db('SkyWise').collection('users');
+
+    // Find the user with the provided username
+    const user = await collection.findOne({ username });
+
+    if (!user) {
+      // User not found
+      return res.status(401).json({ success: false, message: 'Invalid Username' });
+    }
+
+    // Hash the provided password and compare it with the stored password
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+
+    if (hashedPassword !== user.password) {
+      // Passwords don't match
+      return res.status(401).json({ success: false, message: 'Invalid Password' });
+    }
+
+    // Login successful
+    res.status(200).json({ success: true, message: 'Login successful' });
+  } catch (error) {
+    console.log('Error during login:', error);
+
+    res.status(500).json({ success: false, message: 'Login failed' });
   } finally {
     // Close the MongoDB connection if the client is defined
     if (client) {
