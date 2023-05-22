@@ -26,3 +26,11 @@ else {
   $errorMessage = $response.message
   Write-Host "Login failed. Error: $errorMessage"
 }
+# clear the variables
+$username = $null
+$password = $null
+$passwordPlainText = $null
+$body = $null
+$response = $null
+$jwtToken = $null
+$errorMessage = $null
