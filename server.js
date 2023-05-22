@@ -29,8 +29,7 @@ app.get('/app.html', (req, res) => {
 });
 
 // MongoDB connection string
-const uri =
-  'mongodb+srv://AlphaDBAdmin2:Zoo05rF9PMR3UeGG@alphadbv1.9q93m.mongodb.net/SkyWise?retryWrites=true&w=majority';
+const uri = 'mongodb+srv://AlphaDBAdmin2:Zoo05rF9PMR3UeGG@alphadbv1.9q93m.mongodb.net/SkyWise?retryWrites=true&w=majority';
 
 // Route for handling the registration form submission
 app.post('/register', async (req, res) => {
@@ -57,13 +56,11 @@ app.post('/register', async (req, res) => {
       return res.status(409).json({ success: false, message: 'User already exists' });
     }
 
-    // Hash the username, email, and password before storing them
-    const hashedUsername = await bcrypt.hash(username, 10);
-    const hashedEmail = await bcrypt.hash(email, 10);
+    // Hash the password before storing it
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert the registration details into the collection
-    await collection.insertOne({ username: hashedUsername, email: hashedEmail, password: hashedPassword });
+    await collection.insertOne({ username, email, password: hashedPassword });
 
     console.log('Registration details stored in MongoDB');
 

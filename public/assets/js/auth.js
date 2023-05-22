@@ -129,7 +129,7 @@ function submitForm() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  const registerButton = document.querySelector('.register.button-control');
+  const registerButton = document.querySelector('.register');
   const usernameInput = document.getElementById('username');
   const emailInput = document.getElementById('email');
   const passwordInput = document.getElementById('password');
