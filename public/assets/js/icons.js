@@ -1,0 +1,32 @@
+const weatherIcon = {
+    "overcast clouds": "assets/img/weather-icons/overcast-clouds.png",
+    "few clouds": "assets/img/weather-icons/partly-cloud.png",
+    "broken clouds": "assets/img/weather-icons/broken-clouds.png",
+    "scattered clouds": "assets/img/weather-icons/scattered-clouds.png",
+    haze: "assets/img/weather-icons/haze.png",
+    "clear sky": "assets/img/weather-icons/sunny.png",
+    "light rain": "assets/img/weather-icons/light-rain.png",
+    "mist": "assets/img/weather-icons/mist.png",
+    "moderate rain": "assets/img/weather-icons/moderate-rain.png",
+    "heavy intensity rain": "assets/img/weather-icons/heavy-intensity-rain.png",
+    "light intensity drizzle": "assets/img/weather-icons/light-intensity-drizzle.png",
+  };
+
+  const directionIcon = {
+    N: "assets/img/directions/N.png",
+    NNE: "assets/img/directions/NNE.png",
+    NE: "assets/img/directions/NE.png",
+    ENE: "assets/img/directions/ENE.png",
+    E: "assets/img/directions/E.png",
+    ESE: "assets/img/directions/ESE.png",
+    SE: "assets/img/directions/SE.png",
+    SSE: "assets/img/directions/SSE.png",
+    S: "assets/img/directions/S.png",
+    SSW: "assets/img/directions/SSW.png",
+    SW: "assets/img/directions/SW.png",
+    WSW: "assets/img/directions/WSW.png",
+    W: "assets/img/directions/W.png",
+    WNW: "assets/img/directions/WNW.png",
+    NW: "assets/img/directions/NW.png",
+    NNW: "assets/img/directions/NNW.png",
+  };

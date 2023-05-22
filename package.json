@@ -1,0 +1,22 @@
+{
+  "name": "skywise2.0",
+  "version": "1.0.0",
+  "description": "Skywise is a modern and user-friendly weather web application that provides real-time weather information, forecasts, and alerts for locations around the world.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlphaGhostUSMC/SkyWise2.0.git"
+  },
+  "keywords": [
+    "Weather"
+  ],
+  "author": "Alpha SilverBack",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlphaGhostUSMC/SkyWise2.0/issues"
+  },
+  "homepage": "https://github.com/AlphaGhostUSMC/SkyWise2.0#readme"
+}

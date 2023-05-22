@@ -1,0 +1,199 @@
+:root {
+  --success-color: #23cc71;
+  --error-color: #e74c3c;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+}
+
+.login-container, .register-container {
+  width: 440px;
+  height: 500px;
+  background: linear-gradient(165deg, #141414, #4d4d4d);
+  color: #87ceeb;
+  border-radius: 20px;
+  border-bottom: 5px inset #daa520;
+  border-right: 5px outset #daa520;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 5px;
+  justify-content: space-evenly;
+}
+
+.login-input, .register-input {
+  background: #ffffff00;
+  color: #daa520aa;
+  font-family: Anybody, serif;
+  font-style: italic;
+  font-size: 1em;
+  border-bottom-right-radius: 15px;
+  border-bottom-left-radius: 15px;
+  border-top-style: none;
+  border-right-style: none;
+  border-left-style: none;
+  border-bottom-style: inset;
+  border-bottom-color: #daa520;
+  border-bottom-width: 3px;
+  margin-left: 5px;
+  width: 210px;
+}
+
+.login-input:focus, .register-input:focus {
+  outline: none;
+}
+
+.login-input::placeholder, .register-input::placeholder {
+  color: #daa520;
+  opacity: 0.5;
+  text-align: left;
+  padding-left: 15px;
+  font-size: 1em;
+}
+
+.login-register-button-container {
+  width: 250px;
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.button-control {
+  background: #ffffff00;
+  color: #daa520;
+  font-family: 'Acme', serif;
+  width: 110px;
+  border-radius: 1em;
+  border-top: 2px double #daa520;
+  border-right-style: none;
+  border-bottom: 5px inset #daa520;
+  border-left-style: none;
+  transition: transform 0.2s;
+}
+
+.button-control:hover {
+  background: linear-gradient(165deg, #a47a1e, #d3a84c, #ffec94, #e6be6f, #ffd87c, #b58f3e, #956d13);
+  color: #141414;
+  border-top: 2px double #0054d2;
+  border-bottom: 5px inset #0054d2;
+}
+
+.button-control:active {
+  transform: translateY(2px);
+}
+
+.input-container {
+  position: relative;
+}
+
+.input-container i {
+  position: absolute;
+  top: 50%;
+  left: 0.8rem;
+  color: #daa520;
+  transform: translateY(-50%);
+  font-size: 16px;
+}
+
+#eyeIcon, #cnfEyeIcon {
+  position: relative;
+  margin-right: -20px;
+}
+
+.input-container input {
+  padding-left: 30px;
+}
+
+.input-container.success input {
+  border-bottom-color: var(--success-color);
+}
+
+.input-container.error input {
+  border-bottom-color: var(--error-color);
+}
+
+.validation-container.success {
+  border-bottom: 5px inset var(--success-color);
+  border-right: 5px outset var(--success-color);
+}
+
+.validation-container.error {
+  visibility: visible;
+  border-bottom: 5px inset var(--error-color);
+  border-right: 5px outset var(--error-color);
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.validation-container small {
+  color: var(--error-color);
+  visibility: hidden;
+}
+
+.validation-container {
+  visibility: hidden;
+}
+
+.validation-container.error small {
+  visibility: visible;
+}
+
+.brand-logo-container h1 {
+  color: #87ceeb;
+  font-weight: normal;
+  font-family: 'Aclonica', sans-serif;
+}
+
+.brand-logo-container span {
+  color: #daa520;
+  font-family: Artifika, serif;
+  font-weight: bold;
+  margin-left: 5px;
+  border-radius: 0.5em;
+  padding: 5px;
+  border: 3px outset #daa520;
+  box-shadow: 0px 4px 4px 1px #daa520;
+}
+
+.logo-gif-container {
+  width: auto;
+  height: auto;
+  display: flex;
+  margin-top: -60px;
+  margin-left: -10px;
+  flex-direction: column;
+  justify-content: space-around;
+  align-content: space-evenly;
+}
+
+.logo-gif-container lottie-player {
+  margin-top: -3px;
+  max-height: 100px;
+  min-height: 50px;
+  height: auto;
+  max-width: 100px;
+  min-width: 50px;
+  width: auto;
+}
+
+.weather-widget, .validation-container {
+  width: 100%;
+  max-width: 470px;
+  background: linear-gradient(165deg, #141414, #4d4d4d);
+  color: #87ceeb;
+  border-radius: 2em;
+  padding: 40px 35px;
+  text-align: center;
+  border-bottom: 5px inset #daa520;
+  border-right: 5px outset #daa520;
+  display: flex;
+  justify-content: center;
+}
+
