@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const app = express();
 const path = require('path');
 
@@ -109,8 +110,11 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid Password' });
     }
 
-    // Login successful
-    res.status(200).json({ success: true, message: 'Login successful' });
+    // Generate a JWT token
+    const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    // Login successful, send the token as a response
+    res.status(200).json({ success: true, message: 'Login successful', token });
   } catch (error) {
     console.log('Error during login:', error);
 
@@ -122,6 +126,28 @@ app.post('/login', async (req, res) => {
       console.log('Disconnected from MongoDB');
     }
   }
+});
+
+// Protected route
+app.get('/protected', (req, res) => {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Authorization token not provided' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ success: false, message: 'Invalid token' });
+    }
+
+    const { username } = decoded;
+
+    // Perform any necessary actions for the protected route
+    // ...
+
+    res.json({ success: true, message: 'Protected route accessed successfully.' });
+  });
 });
 
 // Start the server
