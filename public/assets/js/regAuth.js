@@ -22,6 +22,7 @@ function showNotification(message) {
 function validateForm() {
   const username = document.querySelector('.reg-username-input').value;
   const email = document.querySelector('.email-input').value;
+  const location = document.querySelector('.location-input').value;
   const password = document.querySelector('.reg-password-input').value;
   const cnfpassword = document.querySelector('.reg-cnfpassword-input').value;
 
@@ -47,6 +48,12 @@ function validateForm() {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     showNotification('Email is not valid.');
+    return false;
+  }
+
+  // Validation check 3: Location
+  if (location.trim() === '') {
+    showNotification('Location should not be empty.');
     return false;
   }
 
@@ -91,11 +98,13 @@ function submitForm() {
   // Prepare the form data
   const username = document.querySelector('.reg-username-input').value;
   const email = document.querySelector('.email-input').value;
+  const location = document.querySelector('.location-input').value;
   const password = document.querySelector('.reg-password-input').value;
 
   const formData = {
     username,
     email,
+    location,
     password
   };
 
@@ -132,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const registerButton = document.querySelector('.register');
   const usernameInput = document.getElementById('username');
   const emailInput = document.getElementById('email');
+  const locationInput = document.getElementById('location');
   const passwordInput = document.getElementById('password');
   const cnfPasswordInput = document.getElementById('cnfpassword');
 
@@ -144,6 +154,12 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   emailInput.addEventListener('keypress', function (event) {
+    if (event.key === 'Enter') {
+      submitForm();
+    }
+  });
+
+  locationInput.addEventListener('keypress', function (event) {
     if (event.key === 'Enter') {
       submitForm();
     }

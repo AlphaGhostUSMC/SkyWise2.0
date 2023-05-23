@@ -42,7 +42,7 @@ const uri = `mongodb+srv://${muser}:${mpass}@alphadbv1.9q93m.mongodb.net/${db}?r
 
 // Route for handling the registration form submission
 app.post('/register', async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, location, password } = req.body;
 
   // Validate the registration details here (same validation logic as in auth.js)
   // ...
@@ -69,7 +69,7 @@ app.post('/register', async (req, res) => {
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
 
     // Insert the registration details into the collection
-    await collection.insertOne({ username, email, password: hashedPassword });
+    await collection.insertOne({ username, email, location, password: hashedPassword });
 
     console.log('Registration details stored in MongoDB');
 
