@@ -12,11 +12,26 @@ body {
   height: 100vh;
 }
 
-.login-container, .register-container {
+.register-container {
   width: 440px;
-  height: 500px;
+  height: 540px;
   background: linear-gradient(165deg, #141414, #4d4d4d);
-  color: #87ceeb;
+  color: #daa520;
+  border-radius: 20px;
+  border-bottom: 5px inset #daa520;
+  border-right: 5px outset #daa520;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 5px;
+  justify-content: space-evenly;
+}
+
+.login-container {
+  width: 420px;
+  height: 440px;
+  background: linear-gradient(165deg, #141414, #4d4d4d);
+  color: #daa520;
   border-radius: 20px;
   border-bottom: 5px inset #daa520;
   border-right: 5px outset #daa520;
@@ -42,7 +57,7 @@ body {
   border-bottom-color: #daa520;
   border-bottom-width: 3px;
   margin-left: 5px;
-  width: 210px;
+  width: 245px;
 }
 
 .login-input:focus, .register-input:focus {
