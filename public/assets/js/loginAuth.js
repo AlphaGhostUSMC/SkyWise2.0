@@ -1,23 +1,24 @@
 function showNotification(message) {
-  // Check if the browser supports notifications
   if (!("Notification" in window)) {
     console.log("This browser does not support desktop notification");
     return;
   }
 
-  // Check the notification permission
   if (Notification.permission === "granted") {
-    // If permission is already granted, show the notification
     let notification = new Notification(message);
   } else if (Notification.permission !== "denied") {
-    // Otherwise, request permission from the user
-    Notification.requestPermission().then(function (permission) {
-      if (permission === "granted") {
-        let notification = new Notification(message);
-      }
-    });
+    Notification.requestPermission()
+      .then(function (permission) {
+        if (permission === "granted") {
+          let notification = new Notification(message);
+        }
+      })
+      .catch(function (error) {
+        console.error("Error occurred while requesting permission:", error);
+      });
   }
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginButton = document.querySelector('.login');
@@ -53,37 +54,42 @@ document.addEventListener('DOMContentLoaded', () => {
     rememberMeCheckbox.checked = true;
   }
 
-  loginButton.addEventListener('click', async () => {
+  loginButton.addEventListener('click', () => {
     const usernameInput = document.querySelector('#username');
     const passwordInput = document.querySelector('#password');
 
     const username = usernameInput.value;
     const password = passwordInput.value;
 
-    const response = await fetch('/login', {
+    fetch('/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ username, password })
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      // Login successful
-      if (rememberMeCheckbox.checked) {
-        // Save the username and password if remember me is checked
-        saveCredentials(username, password);
-      } else {
-        // Clear the saved credentials if remember me is unchecked
-        clearSavedCredentials();
-      }
-      // Redirect to app.html
-      window.location.href = '/app.html';
-    } else {
-      // Login failed, show error notification
-      showNotification(result.message);
-    }
+    })
+      .then(response => {
+        if (response.ok) {
+          // Login successful
+          if (rememberMeCheckbox.checked) {
+            // Save the username and password if remember me is checked
+            saveCredentials(username, password);
+          } else {
+            // Clear the saved credentials if remember me is unchecked
+            clearSavedCredentials();
+          }
+          // Redirect to app.html
+          window.location.href = '/app.html';
+        } else {
+          // Login failed, show error notification
+          return response.json().then(result => {
+            showNotification(result.message);
+          });
+        }
+      })
+      .catch(error => {
+        // Handle any other errors that occurred during the request
+        console.error(error);
+      });
   });
 });

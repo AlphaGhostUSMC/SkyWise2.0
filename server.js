@@ -159,6 +159,70 @@ app.get('/protected', (req, res) => {
   });
 });
 
+// Middleware for verifying JWT token
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Authorization token not provided' });
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ success: false, message: 'Invalid token' });
+    }
+
+    req.decoded = decoded;
+    next();
+  });
+};
+
+// ...
+
+// Route for fetching the user's favorite location
+app.get('/api/user/favorite-location', verifyToken, (req, res) => {
+  // Extract the username from the decoded token
+  const { username } = req.decoded;
+
+  let client;
+
+  try {
+    client = new MongoClient(uri);
+
+    client.connect(async (error) => {
+      if (error) {
+        console.log('Error connecting to MongoDB:', error);
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+
+      console.log('Connected to MongoDB');
+
+      const collection = client.db('SkyWise').collection('users');
+
+      // Find the user with the provided username
+      const user = await collection.findOne({ username });
+
+      if (!user) {
+        // User not found
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      // Send the favorite location as a response
+      res.status(200).json({ success: true, favoriteLocation: user.location });
+    });
+  } catch (error) {
+    console.log('Error fetching favorite location:', error);
+
+    res.status(500).json({ success: false, message: 'Server error' });
+  } finally {
+    // Close the MongoDB connection if the client is defined
+    if (client) {
+      client.close();
+      console.log('Disconnected from MongoDB');
+    }
+  }
+});
+
 // Start the server
 const port = 5050; // Change this to the desired port number
 app.listen(port, () => {
