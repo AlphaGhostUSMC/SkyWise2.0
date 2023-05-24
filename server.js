@@ -177,10 +177,8 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-// ...
-
 // Route for fetching the user's favorite location
-app.get('/api/user/favorite-location', verifyToken, (req, res) => {
+app.get('/api/user/favorite-location', verifyToken, async (req, res) => {
   // Extract the username from the decoded token
   const { username } = req.decoded;
 
@@ -189,27 +187,21 @@ app.get('/api/user/favorite-location', verifyToken, (req, res) => {
   try {
     client = new MongoClient(uri);
 
-    client.connect(async (error) => {
-      if (error) {
-        console.log('Error connecting to MongoDB:', error);
-        return res.status(500).json({ success: false, message: 'Database error' });
-      }
+    await client.connect();
+    console.log('Connected to MongoDB');
 
-      console.log('Connected to MongoDB');
+    const collection = client.db('SkyWise').collection('users');
 
-      const collection = client.db('SkyWise').collection('users');
+    // Find the user with the provided username
+    const user = await collection.findOne({ username });
 
-      // Find the user with the provided username
-      const user = await collection.findOne({ username });
+    if (!user) {
+      // User not found
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
-      if (!user) {
-        // User not found
-        return res.status(404).json({ success: false, message: 'User not found' });
-      }
-
-      // Send the favorite location as a response
-      res.status(200).json({ success: true, favoriteLocation: user.location });
-    });
+    // Send the favorite location as a response
+    res.status(200).json({ success: true, favoriteLocation: user.location });
   } catch (error) {
     console.log('Error fetching favorite location:', error);
 
