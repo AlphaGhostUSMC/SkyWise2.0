@@ -4,6 +4,7 @@
   "description": "Skywise is a modern and user-friendly weather web application that provides real-time weather information, forecasts, and alerts for locations around the world.",
   "main": "server.js",
   "scripts": {
+    "devStart": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,5 +28,8 @@
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^5.5.0",
     "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
   }
 }

@@ -1835,4 +1835,233 @@ app.listen(port, async () => {
   console.log(`http://localhost:${port}`);
 });
 
+-----------------------------------------
+
+require('dotenv').config();
+const express = require('express');
+const { MongoClient } = require('mongodb');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const app = express();
+const path = require('path');
+const url = require('url');
+
+// Generate a secret key for JWT signing
+const secretKey = crypto.randomBytes(32).toString('hex');
+console.log(secretKey);
+
+const muser = process.env.MONGODB_USERNAME;
+const mpass = process.env.MONGODB_PASSWORD;
+const db = process.env.MONGODB_DATABASE;
+
+// Serve static files from the "public" directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware to parse JSON request body
+app.use(express.json());
+
+// Define a route to serve the index.html file
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
+
+app.get('/login.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+});
+
+app.get('/register.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'register.html'));
+});
+
+app.get('/app.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'app.html'));
+});
+
+// MongoDB connection string
+const uri = `mongodb+srv://${muser}:${mpass}@alphadbv1.9q93m.mongodb.net/${db}?retryWrites=true&w=majority`;
+
+// Route for handling the registration form submission
+app.post('/register', async (req, res) => {
+  // ... existing code for registration ...
+
+  res.redirect('/login.html');
+});
+
+// Route for handling the login request
+app.post('/login', async (req, res) => {
+  // ... existing code for login ...
+
+  res.status(200).json({ success: true, message: 'Login successful', token });
+});
+
+// Protected route
+app.get('/protected', (req, res) => {
+  // ... existing code for protected route ...
+});
+
+// Middleware for verifying JWT token
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Authorization token not provided' });
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ success: false, message: 'Invalid token' });
+    }
+
+    req.decoded = decoded;
+    next();
+  });
+};
+
+// Middleware to restrict access to the /app.html page
+app.use('/app.html', (req, res, next) => {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    const redirectUrl = url.format({
+      protocol: req.protocol,
+      host: req.get('host'),
+      pathname: '/'
+    });
+    return res.redirect(redirectUrl);
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      const redirectUrl = url.format({
+        protocol: req.protocol,
+        host: req.get('host'),
+        pathname: '/'
+      });
+      return res.redirect(redirectUrl);
+    }
+
+    next();
+  });
+});
+
+// Route for fetching the user's favorite location
+app.get('/api/user/favorite-location', verifyToken, async (req, res) => {
+  // ... existing code for fetching favorite location ...
+});
+
+// Start the server
+const port = 5050; // Change this to the desired port number
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+  console.log(`http://localhost:${port}`);
+});
+
+_____________________________________
+
+// Route for handling the login request
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  let client;
+
+  try {
+    client = new MongoClient(uri);
+
+    await client.connect();
+    console.log('Connected to MongoDB');
+
+    const collection = client.db('SkyWise').collection('users');
+
+    // Find the user with the provided username
+    const user = await collection.findOne({ username });
+
+    if (!user) {
+      // User not found
+      return res.status(401).json({ success: false, message: 'Invalid Username' });
+    }
+
+    // Hash the provided password and compare it with the stored password
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+
+    if (hashedPassword !== user.password) {
+      // Passwords don't match
+      return res.status(401).json({ success: false, message: 'Invalid Password' });
+    }
+
+    // Generate a JWT token
+    const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
+
+    // Login successful, send the token as a response and store it in local storage
+    res.status(200).json({ success: true, message: 'Login successful', token });
+
+    // Store the token securely in local storage
+    // Note: Make sure to handle security considerations such as XSS attacks when storing sensitive information in local storage
+    if (typeof Storage !== 'undefined') {
+      localStorage.setItem('token', token);
+    } else {
+      console.log('Local storage is not supported.');
+    }
+  } catch (error) {
+    console.log('Error during login:', error);
+
+    res.status(500).json({ success: false, message: 'Login failed' });
+  } finally {
+    // Close the MongoDB connection if the client is defined
+    if (client) {
+      client.close();
+      console.log('Disconnected from MongoDB');
+    }
+  }
+});
+
+_____________________________________
+
+// Middleware to restrict access to the /app.html page
+const restrictAccess = (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.redirect('/');
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.redirect('/');
+    }
+
+    req.decoded = decoded;
+    next();
+  });
+};
+
+// Serve the app.html file only if the user is authenticated
+app.get('/app.html', restrictAccess, (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'app.html'));
+});
+
+_____________________________________
+
+// Serve the app.html file only if the user is authenticated
+app.get('/app.html', restrictAccess, (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'app.html'));
+});
+
+// Middleware to restrict access to the /app.html page
+const restrictAccess = (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.redirect('/');
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.redirect('/');
+    }
+
+    req.decoded = decoded;
+    next();
+  });
+};
+
 

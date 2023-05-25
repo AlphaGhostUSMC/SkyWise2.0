@@ -6,8 +6,19 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const path = require('path');
 
+
 // Generate a secret key for JWT signing
-const secretKey = crypto.randomBytes(32).toString('hex');
+// Set the seed value for the pseudo-random number generator
+const seedValue = 'myseed';
+
+// Create a hash of the seed value
+const seedHash = crypto.createHash('sha256').update(seedValue).digest();
+
+// Create a pseudo-random number generator with the seed hash
+const prng = crypto.createHash('sha256').update(seedHash);
+
+// Generate the random bytes with the PRNG
+const secretKey = prng.digest('hex');
 console.log(secretKey);
 
 const muser = process.env.MONGODB_USERNAME;
@@ -121,6 +132,9 @@ app.post('/login', async (req, res) => {
     // Generate a JWT token
     const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
 
+    // Set the token as a cookie
+    res.cookie('token', token, { httpOnly: true, secure: true });
+
     // Login successful, send the token as a response
     res.status(200).json({ success: true, message: 'Login successful', token });
   } catch (error) {
@@ -135,6 +149,7 @@ app.post('/login', async (req, res) => {
     }
   }
 });
+
 
 // Protected route
 app.get('/protected', (req, res) => {
@@ -177,6 +192,8 @@ const verifyToken = (req, res, next) => {
   });
 };
 
+
+
 // Route for fetching the user's favorite location
 app.get('/api/user/favorite-location', verifyToken, async (req, res) => {
   // Extract the username from the decoded token
@@ -216,7 +233,7 @@ app.get('/api/user/favorite-location', verifyToken, async (req, res) => {
 });
 
 // Start the server
-const port = 5050; // Change this to the desired port number
+const port = process.env.SERVER_PORT; // Change this to the desired port number
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
   console.log(`http://localhost:${port}`);
