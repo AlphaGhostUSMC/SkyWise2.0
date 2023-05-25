@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const app = express();
 const path = require('path');
-
+const cookieParser = require('cookie-parser');
 
 // Generate a secret key for JWT signing
 // Set the seed value for the pseudo-random number generator
@@ -30,6 +30,32 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware to parse JSON request body
 app.use(express.json());
+app.use(cookieParser());
+
+// Middleware for verifying JWT token
+function verifyToken(req, res, next) {
+  const token = req.cookies.token || '';
+
+  if (!token) {
+    return res.send('<script>alert("You are not authorized"); window.location.href = "/";</script>');
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.send('<script>alert("You are not authorized"); window.location.href = "/";</script>');
+    }
+
+    req.decoded = decoded; // Store the decoded token in the request object
+
+    const { username } = decoded;
+
+    console.log('Protected route accessed by:', username);
+    // Perform any necessary actions for the protected route
+    // ...
+
+    next();
+  });
+}
 
 // Define a route to serve the index.html file
 app.get('/', (req, res) => {
@@ -44,7 +70,45 @@ app.get('/register.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'register.html'));
 });
 
-app.get('/app.html', (req, res) => {
+// Route for fetching the user's favorite location
+app.get('/api/user/favorite-location', verifyToken, async (req, res) => {
+  // Extract the username from the decoded token
+  const { username } = req.decoded;
+
+  let client;
+
+  try {
+    client = new MongoClient(uri);
+
+    await client.connect();
+    console.log('Connected to MongoDB');
+
+    const collection = client.db('SkyWise').collection('users');
+
+    // Find the user with the provided username
+    const user = await collection.findOne({ username });
+
+    if (!user) {
+      // User not found
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Send the favorite location as a response
+    res.status(200).json({ success: true, favoriteLocation: user.location });
+  } catch (error) {
+    console.log('Error fetching favorite location:', error);
+
+    res.status(500).json({ success: false, message: 'Server error' });
+  } finally {
+    // Close the MongoDB connection if the client is defined
+    if (client) {
+      client.close();
+      console.log('Disconnected from MongoDB');
+    }
+  }
+});
+
+app.get('/app.html', verifyToken, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'app.html'));
 });
 
@@ -101,7 +165,7 @@ app.post('/register', async (req, res) => {
 
 // Route for handling the login request
 app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, rememberMe } = req.body;
 
   let client;
 
@@ -130,10 +194,10 @@ app.post('/login', async (req, res) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: rememberMe ? '7d' : '1h' });
 
     // Set the token as a cookie
-    res.cookie('token', token, { httpOnly: true, secure: true });
+    res.cookie('token', token, { httpOnly: true, secure: true, maxAge: rememberMe ? 7 * 24 * 60 * 60 * 1000 : undefined });
 
     // Login successful, send the token as a response
     res.status(200).json({ success: true, message: 'Login successful', token });
@@ -149,50 +213,6 @@ app.post('/login', async (req, res) => {
     }
   }
 });
-
-
-// Protected route
-app.get('/protected', (req, res) => {
-  const token = req.headers.authorization;
-
-  if (!token) {
-    return res.status(401).json({ success: false, message: 'Authorization token not provided' });
-  }
-
-  jwt.verify(token, secretKey, (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ success: false, message: 'Invalid token' });
-    }
-
-    const { username } = decoded;
-
-    console.log('Protected route accessed by:', username);
-    // Perform any necessary actions for the protected route
-    // ...
-
-    res.json({ success: true, message: 'Protected route accessed successfully.' });
-  });
-});
-
-// Middleware for verifying JWT token
-const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization;
-
-  if (!token) {
-    return res.status(401).json({ success: false, message: 'Authorization token not provided' });
-  }
-
-  jwt.verify(token, secretKey, (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ success: false, message: 'Invalid token' });
-    }
-
-    req.decoded = decoded;
-    next();
-  });
-};
-
-
 
 // Route for fetching the user's favorite location
 app.get('/api/user/favorite-location', verifyToken, async (req, res) => {
@@ -233,7 +253,7 @@ app.get('/api/user/favorite-location', verifyToken, async (req, res) => {
 });
 
 // Start the server
-const port = process.env.SERVER_PORT; // Change this to the desired port number
+const port = process.env.SERVER_PORT || 3000; // Change this to the desired port number
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
   console.log(`http://localhost:${port}`);
