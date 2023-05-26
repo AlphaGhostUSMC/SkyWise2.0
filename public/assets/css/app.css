@@ -20,7 +20,7 @@
 .brand-logo-container {
   width: auto;
   height: auto;
-  margin-left: 50px;
+  margin-left: 25px;
   margin-top: 40px;
 }
 
@@ -44,7 +44,6 @@
 .logo-gif-container {
   width: auto;
   height: auto;
-  display: flex;
   margin-top: -60px;
   margin-left: -10px;
   display: flex;
@@ -64,15 +63,16 @@
 }
 
 .city-search-container {
-  margin-right: 50px;
+  margin-right: 25px;
   width: auto;
   height: auto;
   display: flex;
   align-items: center;
 }
 
-.fas.fa-search-location {
+.fa-search-location, .fa-sign-out-alt, .fa-home {
   color: #daa520;
+  font-size: 25px;
 }
 
 .weather-main {
@@ -103,7 +103,7 @@
   border-bottom-style: solid;
   border-bottom-color: #daa520;
   border-left-style: hidden;
-  margin-left: 5px;
+  margin-left: 10px;
 }
 
 .weather-icon-main {
@@ -363,5 +363,18 @@
 
 #forecast-desc {
   margin-top: 5px;
+}
+
+.exit-container {
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  margin-left: 20px;
+  text-align: center;
+}
+
+.go-home:active, .sign-out:active, .get-location:active {
+  transform: translateY(2px);
 }
 
